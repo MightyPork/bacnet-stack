@@ -51,6 +51,7 @@
 #include "bacnet/datetime.h"
 #include "bacnet/bacstr.h"
 #include "bacnet/lighting.h"
+#include "timestamp.h"
 #if defined(BACAPP_HOST_N_PORT)
 #include "bacnet/datalink/datalink.h"
 #endif
@@ -68,6 +69,7 @@
 int bacapp_encode_application_data(
     uint8_t *apdu, BACNET_APPLICATION_DATA_VALUE *value)
 {
+    int max_apdu_len = MAX_APDU; // HACK
     int apdu_len = 0; /* total length of the apdu, return value */
 
     if (value && apdu) {
@@ -167,6 +169,72 @@ int bacapp_encode_application_data(
                     &apdu[0], &value->type.Device_Object_Property_Reference);
                 break;
 #endif
+#if defined (BACAPP_TYPES_EXTRA)
+
+            case BACNET_APPLICATION_TAG_EMPTYLIST:     /* Empty data list */
+                apdu_len = 0;   /* EMPTY */
+                break;
+
+            case BACNET_APPLICATION_TAG_DATERANGE:     /* BACnetDateRange */
+                apdu_len = encode_daterange(&apdu[0], &value->type.Date_Range);
+                break;
+            case BACNET_APPLICATION_TAG_DEVICE_OBJECT_REFERENCE:       /* BACnetDeviceObjectReference */
+                apdu_len =
+                    bacapp_encode_device_obj_ref(&apdu[0],
+                    &value->type.Device_Object_Reference);
+                break;
+            case BACNET_APPLICATION_TAG_OBJECT_PROPERTY_REFERENCE:     /* BACnetObjectPropertyReference */
+                apdu_len =
+                    bacapp_encode_obj_property_ref(&apdu[0],
+                    &value->type.Object_Property_Reference);
+                break;
+            case BACNET_APPLICATION_TAG_DATETIME:      /* BACnetDateTime */
+                apdu_len =
+                    encode_application_datetime(&apdu[0],
+                    &value->type.Date_Time);
+                break;
+            case BACNET_APPLICATION_TAG_TIMESTAMP:     /* BACnetTimeStamp */
+                apdu_len =
+                    bacapp_encode_timestamp(&apdu[0], &value->type.TimeStamp);
+                break;
+            case BACNET_APPLICATION_TAG_RECIPIENT:     /* BACnetRecipient */
+                /* ~ limit on max MAC address ? - XXX */
+                apdu_len = encode_recipient(&apdu[0], &value->type.Recipient);
+                break;
+#if 0 // FIXME
+            case BACNET_APPLICATION_TAG_COV_SUBSCRIPTION:      /* BACnetCOVSubscription */
+                apdu_len =
+                    encode_cov_subscription(&apdu[0], max_apdu_len,
+                    &value->type.COV_Subscription);
+                break;
+#endif
+            case BACNET_APPLICATION_TAG_CALENDAR_ENTRY:        /* BACnetCalendarEntry */
+                apdu_len =
+                    encode_calendar_entry(&apdu[0], max_apdu_len,
+                    &value->type.Calendar_Entry);
+                break;
+            case BACNET_APPLICATION_TAG_WEEKLY_SCHEDULE:       /* BACnetWeeklySchedule */
+                apdu_len =
+                    encode_weekly_schedule(&apdu[0], max_apdu_len,
+                    &value->type.Weekly_Schedule);
+                break;
+            case BACNET_APPLICATION_TAG_SPECIAL_EVENT: /* BACnetSpecialEvent */
+                apdu_len =
+                    encode_special_event(&apdu[0], max_apdu_len,
+                    &value->type.Special_Event);
+                break;
+            case BACNET_APPLICATION_TAG_DESTINATION:   /* BACnetDestination (Recipient_List) */
+                apdu_len =
+                    encode_destination(&apdu[0], max_apdu_len,
+                    &value->type.Destination);
+                break;
+            case BACNET_APPLICATION_TAG_READ_ACCESS_SPECIFICATION:     /* BACnetReadAccessSpecification */
+                apdu_len =
+                    encode_read_access_specification(&apdu[0], max_apdu_len,
+                    &value->type.Read_Access_Specification);
+                break;
+#endif
+
             default:
                 break;
         }
@@ -289,6 +357,71 @@ int bacapp_decode_data(uint8_t *apdu,
                     &apdu[0], len_value_type, &error_code,
                     &value->type.IP_Address);
             } break;
+#endif
+#if defined (BACAPP_TYPES_EXTRA)
+
+            case BACNET_APPLICATION_TAG_EMPTYLIST:     /* Empty data list */
+                len = 0;   /* EMPTY */
+                break;
+
+            case BACNET_APPLICATION_TAG_DATERANGE:     /* BACnetDateRange */
+                len = decode_daterange(&apdu[0], &value->type.Date_Range);
+                break;
+            case BACNET_APPLICATION_TAG_DEVICE_OBJECT_REFERENCE:       /* BACnetDeviceObjectReference */
+                len =
+                    bacapp_decode_device_obj_ref(&apdu[0],
+                        &value->type.Device_Object_Reference);
+                break;
+            case BACNET_APPLICATION_TAG_OBJECT_PROPERTY_REFERENCE:     /* BACnetObjectPropertyReference */
+                len =
+                    bacapp_decode_obj_property_ref(&apdu[0],
+                        &value->type.Object_Property_Reference);
+                break;
+            case BACNET_APPLICATION_TAG_DATETIME:      /* BACnetDateTime */
+                len =
+                    decode_application_datetime(&apdu[0],
+                        &value->type.Date_Time);
+                break;
+            case BACNET_APPLICATION_TAG_TIMESTAMP:     /* BACnetTimeStamp */
+                len =
+                    bacapp_decode_timestamp(&apdu[0], &value->type.TimeStamp);
+                break;
+            case BACNET_APPLICATION_TAG_RECIPIENT:     /* BACnetRecipient */
+                /* ~ limit on max MAC address ? - XXX */
+                len = decode_recipient(&apdu[0], &value->type.Recipient);
+                break;
+#if 0 // FIXME
+            case BACNET_APPLICATION_TAG_COV_SUBSCRIPTION:      /* BACnetCOVSubscription */
+                len =
+                    decode_cov_subscription(&apdu[0], len_value_type,
+                        &value->type.COV_Subscription);
+                break;
+#endif
+            case BACNET_APPLICATION_TAG_CALENDAR_ENTRY:        /* BACnetCalendarEntry */
+                len =
+                    decode_calendar_entry(&apdu[0], len_value_type,
+                        &value->type.Calendar_Entry);
+                break;
+            case BACNET_APPLICATION_TAG_WEEKLY_SCHEDULE:       /* BACnetWeeklySchedule */
+                len =
+                    decode_weekly_schedule(&apdu[0], len_value_type,
+                        &value->type.Weekly_Schedule);
+                break;
+            case BACNET_APPLICATION_TAG_SPECIAL_EVENT: /* BACnetSpecialEvent */
+                len =
+                    decode_special_event(&apdu[0], len_value_type,
+                        &value->type.Special_Event);
+                break;
+            case BACNET_APPLICATION_TAG_DESTINATION:   /* BACnetDestination (Recipient_List) */
+                len =
+                    decode_destination(&apdu[0], len_value_type,
+                        &value->type.Destination);
+                break;
+            case BACNET_APPLICATION_TAG_READ_ACCESS_SPECIFICATION:     /* BACnetReadAccessSpecification */
+                len =
+                    decode_read_access_specification(&apdu[0], len_value_type,
+                        &value->type.Read_Access_Specification);
+                break;
 #endif
             default:
                 break;

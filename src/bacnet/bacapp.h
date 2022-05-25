@@ -37,10 +37,17 @@
 #endif
 #if defined (BACAPP_DEVICE_OBJECT_PROP_REF)
 #include "bacnet/bacdevobjpropref.h"
+#include "timestamp.h"
 #endif
 #if defined(BACAPP_HOST_N_PORT)
 #include "bacnet/datalink/datalink.h"
 #endif
+
+struct BACnet_Access_Error;
+typedef struct BACnet_Access_Error {
+    BACNET_ERROR_CLASS error_class;
+    BACNET_ERROR_CODE error_code;
+} BACNET_ACCESS_ERROR;
 
 struct BACnet_Application_Data_Value;
 typedef struct BACnet_Application_Data_Value {
@@ -95,16 +102,26 @@ typedef struct BACnet_Application_Data_Value {
         BACNET_DEVICE_OBJECT_PROPERTY_REFERENCE
             Device_Object_Property_Reference;
 #endif
+#if defined (BACAPP_TYPES_EXTRA)        /* standard composed types : */
+        BACNET_DATE_TIME Date_Time;
+        BACNET_DATE_RANGE Date_Range;
+        BACNET_TIMESTAMP TimeStamp;
+        BACNET_WEEKNDAY Weeknday;
+        BACNET_ACCESS_ERROR Access_Error;
+        BACNET_DESTINATION Destination;
+        BACNET_RECIPIENT Recipient;
+//        BACNET_COV_SUBSCRIPTION COV_Subscription;
+        BACNET_DEVICE_OBJECT_REFERENCE Device_Object_Reference;
+        BACNET_OBJECT_PROPERTY_REFERENCE Object_Property_Reference;
+        BACNET_CALENDAR_ENTRY Calendar_Entry;
+        BACNET_WEEKLY_SCHEDULE Weekly_Schedule;
+        BACNET_SPECIAL_EVENT Special_Event;
+        BACNET_READ_ACCESS_SPECIFICATION Read_Access_Specification;
+#endif
     } type;
     /* simple linked list if needed */
     struct BACnet_Application_Data_Value *next;
 } BACNET_APPLICATION_DATA_VALUE;
-
-struct BACnet_Access_Error;
-typedef struct BACnet_Access_Error {
-    BACNET_ERROR_CLASS error_class;
-    BACNET_ERROR_CODE error_code;
-} BACNET_ACCESS_ERROR;
 
 struct BACnet_Property_Reference;
 typedef struct BACnet_Property_Reference {

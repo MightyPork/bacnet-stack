@@ -54,23 +54,23 @@ extern "C" {
     typedef struct bacnet_daily_schedule {
         BACNET_TIME_VALUE Time_Values[BACNET_WEEKLY_SCHEDULE_SIZE];
         uint16_t TV_Count;      /* the number of time values actually used */
-    } BACNET_DAILY_SCHEDULE;
+    } BACNET_SRV_DAILY_SCHEDULE;
 
     typedef struct schedule {
         /* Effective Period: Start and End Date */
         BACNET_DATE Start_Date;
         BACNET_DATE End_Date;
         /* Properties concerning Present Value */
-        BACNET_DAILY_SCHEDULE Weekly_Schedule[7];
-        BACNET_APPLICATION_DATA_VALUE Schedule_Default;
-        BACNET_APPLICATION_DATA_VALUE *Present_Value;   /* must be set to a valid value
+        BACNET_SRV_DAILY_SCHEDULE Weekly_Schedule[7];
+        BACNET_SHORT_APPLICATION_DATA_VALUE Schedule_Default;
+        BACNET_SHORT_APPLICATION_DATA_VALUE *Present_Value;   /* must be set to a valid value
                                                          * default is Schedule_Default */
         BACNET_DEVICE_OBJECT_PROPERTY_REFERENCE
             Object_Property_References[BACNET_SCHEDULE_OBJ_PROP_REF_SIZE];
         uint8_t obj_prop_ref_cnt;       /* actual number of obj_prop references */
         uint8_t Priority_For_Writing;   /* (1..16) */
         bool Out_Of_Service;
-    } SCHEDULE_DESCR;
+    } SRV_SCHEDULE_DESCR;
 
     BACNET_STACK_EXPORT
     void Schedule_Property_Lists(const int **pRequired,
@@ -109,10 +109,10 @@ extern "C" {
     /* utility functions for calculating current Present Value
      * if Exception Schedule is to be added, these functions must take that into account */
     BACNET_STACK_EXPORT
-    bool Schedule_In_Effective_Period(SCHEDULE_DESCR * desc,
+    bool Schedule_In_Effective_Period(SRV_SCHEDULE_DESCR * desc,
         BACNET_DATE * date);
     BACNET_STACK_EXPORT
-    void Schedule_Recalculate_PV(SCHEDULE_DESCR * desc,
+    void Schedule_Recalculate_PV(SRV_SCHEDULE_DESCR * desc,
         BACNET_WEEKDAY wday,
         BACNET_TIME * time);
 

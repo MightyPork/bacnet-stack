@@ -32,6 +32,17 @@
 #include "bacnet/bacint.h"
 #include "bacnet/bacenum.h"
 
+typedef struct BACnetPropertyRef {
+    BACNET_PROPERTY_ID propertyIdentifier;
+    BACNET_UNSIGNED_INTEGER arrayIndex;        /* Optional */
+} BACNET_PROPERTY_REF;
+
+typedef struct BACnetObjectPropertyReference {
+    BACNET_OBJECT_ID objectIdentifier;
+    BACNET_PROPERTY_ID propertyIdentifier;
+    BACNET_UNSIGNED_INTEGER arrayIndex;        /* Optional */
+} BACNET_OBJECT_PROPERTY_REFERENCE;
+
 typedef struct BACnetDeviceObjectPropertyReference {
     /* number type first to avoid enum cast warning on = { 0 } */
     BACNET_UNSIGNED_INTEGER arrayIndex;
@@ -55,6 +66,30 @@ typedef struct BACnetDeviceObjectReference {
 extern "C" {
 #endif /* __cplusplus */
 
+    /* BACnetPropertyReference */
+    BACNET_STACK_EXPORT
+    int bacapp_encode_property_ref(
+        uint8_t * apdu,
+        BACNET_PROPERTY_REF * value);
+
+    BACNET_STACK_EXPORT
+    int bacapp_encode_context_property_ref(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_PROPERTY_REF * value);
+
+    BACNET_STACK_EXPORT
+    int bacapp_decode_property_ref(
+        uint8_t * apdu,
+        BACNET_PROPERTY_REF * value);
+
+    BACNET_STACK_EXPORT
+    int bacapp_decode_context_property_ref(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_PROPERTY_REF * value);
+
+    /* BACnetDeviceObjectPropertyReference */
     BACNET_STACK_EXPORT
     int bacapp_encode_device_obj_property_ref(
         uint8_t * apdu,
@@ -77,7 +112,31 @@ extern "C" {
         uint8_t tag_number,
         BACNET_DEVICE_OBJECT_PROPERTY_REFERENCE * value);
 
+    /* BACnetObjectPropertyReference */
 
+    BACNET_STACK_EXPORT
+    int bacapp_encode_obj_property_ref(
+        uint8_t * apdu,
+        BACNET_OBJECT_PROPERTY_REFERENCE * value);
+
+    BACNET_STACK_EXPORT
+    int bacapp_encode_context_obj_property_ref(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_OBJECT_PROPERTY_REFERENCE * value);
+
+    BACNET_STACK_EXPORT
+    int bacapp_decode_obj_property_ref(
+        uint8_t * apdu,
+        BACNET_OBJECT_PROPERTY_REFERENCE * value);
+
+    BACNET_STACK_EXPORT
+    int bacapp_decode_context_obj_property_ref(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_OBJECT_PROPERTY_REFERENCE * value);
+
+    /* BACnetDeviceObjectReference */
     BACNET_STACK_EXPORT
     int bacapp_encode_device_obj_ref(
         uint8_t * apdu,

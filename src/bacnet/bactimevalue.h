@@ -32,11 +32,12 @@
 #include "bacnet/bacdef.h"
 #include "bacnet/bacenum.h"
 #include "bacnet/bacapp.h"
+#include "bacnet/bacothertypes.h"
 
-typedef struct {
-    BACNET_TIME Time;
-    BACNET_APPLICATION_DATA_VALUE Value;
-} BACNET_TIME_VALUE;
+//typedef struct {
+//    BACNET_TIME Time;
+//    BACNET_SHORT_APPLICATION_DATA_VALUE Value;
+//} BACNET_TIME_VALUE;
 
 
 #ifdef __cplusplus

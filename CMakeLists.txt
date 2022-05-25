@@ -104,6 +104,7 @@ add_library(${PROJECT_NAME}
     src/bacnet/bacerror.h
     src/bacnet/bacint.c
     src/bacnet/bacint.h
+    src/bacnet/bacothertypes.h
     src/bacnet/bacprop.c
     src/bacnet/bacprop.h
     src/bacnet/bacpropstates.c

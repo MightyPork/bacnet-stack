@@ -41,7 +41,7 @@
 #define MAX_SCHEDULES 4
 #endif
 
-static SCHEDULE_DESCR Schedule_Descr[MAX_SCHEDULES];
+static SRV_SCHEDULE_DESCR Schedule_Descr[MAX_SCHEDULES];
 
 static const int Schedule_Properties_Required[] = { PROP_OBJECT_IDENTIFIER,
     PROP_OBJECT_NAME, PROP_OBJECT_TYPE, PROP_PRESENT_VALUE,
@@ -71,7 +71,7 @@ void Schedule_Init(void)
 {
     unsigned i, j;
 
-    SCHEDULE_DESCR *psched = &Schedule_Descr[0];
+    SRV_SCHEDULE_DESCR *psched = &Schedule_Descr[0];
 
     for (i = 0; i < MAX_SCHEDULES; i++, psched++) {
         /* whole year, change as necessary */
@@ -89,7 +89,7 @@ void Schedule_Init(void)
         psched->Present_Value = &psched->Schedule_Default;
         psched->Schedule_Default.context_specific = false;
         psched->Schedule_Default.tag = BACNET_APPLICATION_TAG_REAL;
-        psched->Schedule_Default.type.Real = 21.0; /* 21 C, room temperature */
+        psched->Schedule_Default.type.Real = 21.0f; /* 21 C, room temperature */
         psched->obj_prop_ref_cnt = 0; /* no references, add as needed */
         psched->Priority_For_Writing = 16; /* lowest priority */
         psched->Out_Of_Service = false;
@@ -164,7 +164,7 @@ int Schedule_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
 {
     int apdu_len = 0;
     unsigned object_index = 0;
-    SCHEDULE_DESCR *CurrentSC;
+    SRV_SCHEDULE_DESCR *CurrentSC;
     uint8_t *apdu = NULL;
     BACNET_BIT_STRING bit_string;
     BACNET_CHARACTER_STRING char_string;
@@ -197,7 +197,7 @@ int Schedule_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
             apdu_len = encode_application_enumerated(&apdu[0], OBJECT_SCHEDULE);
             break;
         case PROP_PRESENT_VALUE:
-            apdu_len = bacapp_encode_data(&apdu[0], CurrentSC->Present_Value);
+            apdu_len = bacapp_encode_data(&apdu[0], (BACNET_APPLICATION_DATA_VALUE*) CurrentSC->Present_Value);
             break;
         case PROP_EFFECTIVE_PERIOD:
             /* 	BACnet Testing Observed Incident oi00110
@@ -245,7 +245,7 @@ int Schedule_Read_Property(BACNET_READ_PROPERTY_DATA *rpdata)
             break;
         case PROP_SCHEDULE_DEFAULT:
             apdu_len =
-                bacapp_encode_data(&apdu[0], &CurrentSC->Schedule_Default);
+                bacapp_encode_data(&apdu[0], (BACNET_APPLICATION_DATA_VALUE*) &CurrentSC->Schedule_Default);
             break;
         case PROP_LIST_OF_OBJECT_PROPERTY_REFERENCES:
             for (i = 0; i < CurrentSC->obj_prop_ref_cnt; i++) {
@@ -378,7 +378,7 @@ bool Schedule_Write_Property(BACNET_WRITE_PROPERTY_DATA *wp_data)
     return status;
 }
 
-bool Schedule_In_Effective_Period(SCHEDULE_DESCR *desc, BACNET_DATE *date)
+bool Schedule_In_Effective_Period(SRV_SCHEDULE_DESCR *desc, BACNET_DATE *date)
 {
     bool res = false;
 
@@ -393,7 +393,7 @@ bool Schedule_In_Effective_Period(SCHEDULE_DESCR *desc, BACNET_DATE *date)
 }
 
 void Schedule_Recalculate_PV(
-    SCHEDULE_DESCR *desc, BACNET_WEEKDAY wday, BACNET_TIME *time)
+    SRV_SCHEDULE_DESCR *desc, BACNET_WEEKDAY wday, BACNET_TIME *time)
 {
     int i;
     desc->Present_Value = NULL;

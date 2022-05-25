@@ -34,6 +34,7 @@
 #include "bacnet/bacint.h"
 #include "bacnet/bacreal.h"
 #include "bacnet/bits.h"
+#include "bacothertypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -568,6 +569,154 @@ extern "C" {
         uint8_t * apdu,
         uint8_t tag_number,
         BACNET_DATE * bdate);
+
+    /* bac extra types */
+    BACNET_STACK_EXPORT
+    int decode_daterange(
+        uint8_t * apdu,
+        BACNET_DATE_RANGE * bdaterange);
+    BACNET_STACK_EXPORT
+    int decode_weeknday(
+        uint8_t * apdu,
+        BACNET_WEEKNDAY * bweeknday);
+    BACNET_STACK_EXPORT
+    int encode_daterange(
+        uint8_t * apdu,
+        BACNET_DATE_RANGE * bdaterange);
+    BACNET_STACK_EXPORT
+    int encode_weeknday(
+        uint8_t * apdu,
+        BACNET_WEEKNDAY * bweeknday);
+    BACNET_STACK_EXPORT
+    int decode_context_daterange(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_DATE_RANGE * bdaterange);
+    BACNET_STACK_EXPORT
+    int decode_context_weeknday(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_WEEKNDAY * bweeknday);
+    BACNET_STACK_EXPORT
+    int encode_context_daterange(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_DATE_RANGE * bdaterange);
+    BACNET_STACK_EXPORT
+    int encode_context_weeknday(
+        uint8_t * apdu,
+        uint8_t tag_number,
+        BACNET_WEEKNDAY * bweeknday);
+
+
+    /* recipient address */
+    BACNET_STACK_EXPORT
+    int encode_recipient(
+        uint8_t * apdu,
+        BACNET_RECIPIENT *destination);
+    /* BACnetDestination : one item of a recipient_list property */
+    BACNET_STACK_EXPORT
+    int encode_destination(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_DESTINATION *destination);
+    /* encode a simple BACnetDateTime value */
+    BACNET_STACK_EXPORT
+    int encode_application_datetime(
+        uint8_t * apdu,
+        BACNET_DATE_TIME * datetime);
+    /* decode a simple BACnetDateTime value */
+    BACNET_STACK_EXPORT
+    int decode_application_datetime(
+        uint8_t * apdu,
+        BACNET_DATE_TIME * datetime);
+#if 0
+    /* BACnetCOVSubscription */
+    BACNET_STACK_EXPORT
+    int encode_cov_subscription(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_COV_SUBSCRIPTION * covs);
+#endif
+    /*/ BACnetCalendarEntry */
+    BACNET_STACK_EXPORT
+    int encode_calendar_entry(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_CALENDAR_ENTRY * entry);
+    /*/ BACnetDailySchedule x7 */
+    BACNET_STACK_EXPORT
+    int encode_weekly_schedule(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_WEEKLY_SCHEDULE * week);
+    BACNET_STACK_EXPORT
+    int encode_special_event(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_SPECIAL_EVENT * special);
+    /* recipient address */
+    BACNET_STACK_EXPORT
+    int decode_recipient(
+        uint8_t * apdu,
+        BACNET_RECIPIENT * destination);
+    /* BACnetDestination : one item of a recipient_list property */
+    BACNET_STACK_EXPORT
+    int decode_destination(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_DESTINATION * destination);
+#if 0
+    /* BACnetCOVSubscription */
+    BACNET_STACK_EXPORT
+    int decode_cov_subscription(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_COV_SUBSCRIPTION * covs);
+#endif
+    BACNET_STACK_EXPORT
+    int decode_calendar_entry(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_CALENDAR_ENTRY * entry);
+    /*/ BACnetDailySchedule x7 / weekly-schedule */
+    BACNET_STACK_EXPORT
+    int decode_weekly_schedule(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_WEEKLY_SCHEDULE * week);
+    /*/ BACnetSpecialEvent */
+    BACNET_STACK_EXPORT
+    int decode_special_event(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_SPECIAL_EVENT * special);
+    /* ReadAccessSpecification */
+    BACNET_STACK_EXPORT
+    int encode_read_access_specification(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_READ_ACCESS_SPECIFICATION * entry);
+    /* ReadAccessSpecification */
+    BACNET_STACK_EXPORT
+    int encode_context_read_access_specification(
+        uint8_t * apdu,
+        int max_apdu_len,
+        uint8_t tag_number,
+        BACNET_READ_ACCESS_SPECIFICATION * entry);
+    /* ReadAccessSpecification */
+    BACNET_STACK_EXPORT
+    int decode_read_access_specification(
+        uint8_t * apdu,
+        int max_apdu_len,
+        BACNET_READ_ACCESS_SPECIFICATION * entry);
+    /* ReadAccessSpecification */
+    BACNET_STACK_EXPORT
+    int decode_context_read_access_specification(
+        uint8_t * apdu,
+        int max_apdu_len,
+        uint8_t tag_number,
+        BACNET_READ_ACCESS_SPECIFICATION * entry);
 
 /* from clause 20.1.2.4 max-segments-accepted */
 /* and clause 20.1.2.5 max-APDU-length-accepted */

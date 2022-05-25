@@ -45,7 +45,7 @@ int bacapp_encode_time_value(uint8_t *apdu, BACNET_TIME_VALUE *value)
     len = encode_application_time(&apdu[apdu_len], &value->Time);
     apdu_len += len;
 
-    len = bacapp_encode_application_data(&apdu[apdu_len], &value->Value);
+    len = bacapp_encode_application_data(&apdu[apdu_len], (BACNET_APPLICATION_DATA_VALUE*) &value->Value);
     apdu_len += len;
 
     return apdu_len;
@@ -80,7 +80,7 @@ int bacapp_decode_time_value(uint8_t *apdu, BACNET_TIME_VALUE *value)
     }
     apdu_len += len;
 
-    len = bacapp_decode_application_data(&apdu[apdu_len], 2048, &value->Value);
+    len = bacapp_decode_application_data(&apdu[apdu_len], 2048, (BACNET_APPLICATION_DATA_VALUE*) &value->Value);
     if (len <= 0) {
         return -1;
     }
