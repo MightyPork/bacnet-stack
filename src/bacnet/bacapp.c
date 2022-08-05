@@ -1569,13 +1569,13 @@ static int bacapp_snprintf_weeklyschedule(
     const char *weekdaynames[7] = {
         "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
     };
-    const int loopend = ((arrayIndex == BACNET_ARRAY_ALL) ? 7 : 1);
+    const int loopend = ws->singleDay ? 1 : 7;
     for (int wi = 0; wi < loopend; wi++) {
         BACNET_DAILY_SCHEDULE *ds = &ws->weeklySchedule[wi];
-        if (arrayIndex == BACNET_ARRAY_ALL) {
-            slen = snprintf(str, str_len, "%s: [", weekdaynames[wi]);
-        } else {
+        if (ws->singleDay) {
             slen = snprintf(str, str_len, "[");
+        } else {
+            slen = snprintf(str, str_len, "%s: [", weekdaynames[wi]);
         }
         ret_val += slen;
         if (str) {
@@ -2202,7 +2202,8 @@ static char* trim(char *str, const char *trimmedchars) {
 static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value)
 {
     char *chunk, *comma, *space, *t, *v;
-    int daynum = 0, tvnum = 0, inner_tag;
+    size_t daynum, tvnum;
+    unsigned int value_type;
     BACNET_APPLICATION_DATA_VALUE dummy_value = { 0 };
     BACNET_DAILY_SCHEDULE *dsch;
 
@@ -2210,6 +2211,9 @@ static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value
      Format:
 
      (1; Mon: [02:00:00.00 FALSE, 07:35:00.00 active, 07:40:00.00 inactive]; Tue: [02:00:00.00 inactive]; ...)
+
+     if only single day - the day number is specified as array index, 0=Monday.
+     (1; [02:00:00.00 FALSE, 07:35:00.00 active, 07:40:00.00 inactive])
 
      - the first number is the inner tag (e.g. 1 = boolean, 4 = real, 9 = enum)
      - Day name prefix is optional and ignored.
@@ -2220,16 +2224,17 @@ static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value
 
     value->tag = BACNET_APPLICATION_TAG_WEEKLY_SCHEDULE;
 
-    // Parse the inner tag
+    // Parse the inner tag (e.g. 1 for booleans)
     chunk = strtok(str, ";");
     chunk = ltrim(chunk, "(");
     if (false == bacapp_parse_application_data(BACNET_APPLICATION_TAG_UNSIGNED_INT, chunk, &dummy_value)) {
         return false;
     }
-    inner_tag = (int) dummy_value.type.Unsigned_Int;
+    value_type = (int) dummy_value.type.Unsigned_Int;
 
     chunk = strtok(NULL, ";");
 
+    daynum = 0;
     while(chunk != NULL) {
         dsch = &value->type.Weekly_Schedule.weeklySchedule[daynum];
 
@@ -2241,7 +2246,7 @@ static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value
         }
 
         // Extract the inner list of time-values
-        chunk = rtrim(ltrim(chunk, "([ "), " ])");
+        chunk = rtrim(ltrim(chunk, "[ "), " ])");
 
         // The list can be empty
         if (chunk[0] != 0) {
@@ -2275,7 +2280,8 @@ static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value
                 dsch->Time_Values[tvnum].Time = dummy_value.type.Time;
 
                 // Parse value
-                if (false == bacapp_parse_application_data(inner_tag, v, &dummy_value)) {
+                if (false == bacapp_parse_application_data(
+                        value_type, v, &dummy_value)) {
                     return false;
                 }
                 if (BACNET_STATUS_OK != bacnet_data_value_to_short_data_value(&dsch->Time_Values[tvnum].Value, &dummy_value)) {
@@ -2295,6 +2301,10 @@ static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value
         // Find the start of the next day
         chunk = strtok(NULL, ";");
         daynum++;
+    }
+
+    if (daynum == 1) {
+        value->type.Weekly_Schedule.singleDay = true;
     }
 
     return true;
