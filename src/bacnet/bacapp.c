@@ -2303,9 +2303,7 @@ static bool parse_weeklyschedule(char *str, BACNET_APPLICATION_DATA_VALUE *value
         daynum++;
     }
 
-    if (daynum == 1) {
-        value->type.Weekly_Schedule.singleDay = true;
-    }
+    value->type.Weekly_Schedule.singleDay = (daynum == 1);
 
     return true;
 }

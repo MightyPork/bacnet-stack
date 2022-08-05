@@ -45,11 +45,17 @@ int bacnet_weeklyschedule_decode(
     int len = 0;
     int apdu_len = 0;
 
-    for (int wi = 0; wi < 7; wi++) {
+    for (size_t wi = 0; wi < 7; wi++) {
         len = bacnet_dailyschedule_decode(
             &apdu[apdu_len], max_apdu_len - apdu_len, &value->weeklySchedule[wi]);
-        if (len < 0)
+        if (len < 0) {
+            if (wi == 1) {
+                // If a single value is encoded, it is always in the first slot.
+                value->singleDay = true;
+                break;
+            }
             return -1;
+        }
         apdu_len += len;
     }
     return apdu_len;
@@ -63,8 +69,7 @@ int bacnet_weeklyschedule_encode(
     int len = 0;
     uint8_t *apdu_offset = NULL;
 
-    for (int wi = 0; wi < 7; wi++) {
-        /* not enough room to write data */
+    for (size_t wi = 0; wi < (value->singleDay ? 1 : 7); wi++) {
         if (apdu) {
             apdu_offset = &apdu[apdu_len];
         }
